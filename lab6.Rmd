@@ -1,0 +1,97 @@
+---
+title: "Lab6"
+author: "Tess Sameshima"
+date: "October 26, 2020"
+output: 
+  html_document:
+    highlight: tango 
+  pdf_document:
+    highlight: kate 
+---
+# 1-4
+```{r, include = "F"}
+knitr::opts_chunk$set(echo = F,
+                      message = F,
+                      warning = F,
+                      fig.width = 6.5,
+                      fig.height = 5)
+#install.packages("rio")
+#install.packages("janitor")
+library(knitr)
+library(rio)
+library(tidyverse)
+library(here)
+library(janitor)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+
+
+
+#2
+#library(haven)
+eclsk <- import("D:/Masters/EDLD651/data/ecls-k_samp.sav")
+
+#3
+
+  
+# read in character information if provided
+eclsk <- eclsk %>% 
+# eclsk <- import(here::here("EDLD651", "data", "ecls-k_samp.sav"), setclass = "tbl_df") %>% 
+  characterize() %>% 
+  janitor::clean_names() %>%
+  as_tibble()
+
+eclsk
+
+#clean data
+#returns unique character names
+unique(eclsk$ethnic)
+
+eclsk %>% 
+  count(ethnic)
+
+T1vsT2 <- eclsk %>% 
+  filter(ethnic == "WHITE, NON-HISPANIC"|
+         ethnic =="BLACK OR AFRICAN AMERICAN, NON-HISPANIC"|
+         ethnic =="HISPANIC, RACE SPECIFIED"|
+         ethnic =="HISPANIC, RACE NOT SPECIFIED") %>% 
+          ggplot(aes(x = t1mscale, y = t2mscale)) +
+            geom_point() +
+            geom_smooth(aes(color = school_type),
+              method = "lm") +
+            facet_wrap(~ethnic)
+T1vsT2
+#4
+t1mean <-mean(eclsk$t1mscale, na.rm = T)
+t1sd <-sd(eclsk$t1mscale, na.rm = T)
+t1mean
+t1sd
+
+t2mean <-mean(eclsk$t2mscale, na.rm = T)
+t2sd <-sd(eclsk$t2mscale, na.rm = T)
+t2mean
+t2sd
+
+#avarage gain
+abs(round(t2mean - t1mean))
+```
+----
+
+The meanfor T1 was 'r round(t1mean,2)' with standard deviation 'r round(tlds,2). At T2, the eman was 'r round(t2mean, 2)' with standard deviation 'r round(t2sd, 2)'. The mean difference between the 2 timepoints was 'r abs(round(t2mean - t1mean,2)). 
+
+
+#5
+Wrighting versatile code that isnt only taylored to your operatting system can allow collaborators to easily access relavant data files without having to rewright chunks of your code. As reading in the wrong file or reading in the correct file but not in the format intended results in a clutter and adds to the workload, inhibiting reproducability.
+So if possible use the import and here functions to specify your files so you dont have to set the file path as something computer specific 
+#e.g
+
+
+'eclsk <- import(here::here("EDLD651", "data", "ecls-k_samp.sav"))
+# instead of
+eclsk <- read_sav("D:/Masters/EDLD651/data/ecls-k_samp.sav")'
+
+
+
